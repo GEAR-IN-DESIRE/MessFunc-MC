@@ -9,6 +9,7 @@ use std::hash::BuildHasherDefault;
 use std::mem::MaybeUninit;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener};
 use std::ptr::addr_of;
+use std::task::Poll::Pending;
 use std::time::Duration;
 use sysinfo::System;
 use tokio::runtime::Runtime;
@@ -29,7 +30,7 @@ pub static mut GLOBAL: MaybeUninit<Global> = MaybeUninit::uninit();
 pub struct Global {
     /// 异步运行时 // TODO 可能会更换
     pub runtime: Runtime,
-    /// TCP监听器, 不阻塞, 轮询获取, 用于监听 JavaClient 的连接 // TODO 未来将=可能会使用他接收控制台命令
+    /// TCP监听器, 不阻塞, 轮询获取, 用于监听 JavaClient 的连接 // TODO 未来可能会使用他接收控制台命令
     pub listener: TcpListener,
     /// SChunk 脱离一个 ChunKServer 自建一个 ChunkServer 的速率
     pub schunk_decay_rate: u8,
@@ -69,5 +70,18 @@ impl Global {
 pub const fn global() -> &'static Global {
     unsafe {
         &*addr_of!(GLOBAL).cast::<Global>()
+    }
+}
+pub trait AsyncWait<T> {
+    fn async_wait(self) -> T;
+}
+impl<T, F: Future<Output = T>> AsyncWait<T> for F {
+    fn async_wait(self) -> T {
+        // TODO 可能最后会这么做
+        // while self.poll() == Pending {
+        //     // 获取任务执行
+        // }
+        // // 返回
+        global().runtime.block_on(self)
     }
 }

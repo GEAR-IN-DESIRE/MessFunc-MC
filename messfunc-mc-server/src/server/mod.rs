@@ -1,7 +1,7 @@
 use crate::entity::player::Player;
 use crate::pos::{SChunkPos, WChunkPos};
 use crate::server::chunk::SChunk;
-use crate::server::global::global;
+use crate::server::global::{global, AsyncWait};
 use crate::server::ticker::ChunkServerEvent::{RemoveSCEvent, TickEndEvent};
 use crate::server::ticker::{ChunkServerEvent, ChunkServerState, Responser, SChunkRequestCell, Ticker};
 use crate::tick_chunk;
@@ -44,9 +44,9 @@ impl ChunkServer {
                     tx,
                 };
                 global().runtime.spawn(global().events.send(ChunkServerEvent::RequestSCEvent(responser)));
-                let response_cell = global().runtime.block_on(rx.wait_recv());
+                let borrow = rx.wait_recv().async_wait();
                 let index = self.borrows.len();
-                self.borrows.push(response_cell.response);
+                self.borrows.push(borrow);
                 // mem::forget(response_cell.requester);
                 self.borrows[index].get_mut().sc_map.get_mut(&pos).expect("数据混乱! 请求到的Server中不包含请求的SChunk")
             },

@@ -21,7 +21,6 @@ mod world;
 mod block;
 mod pos;
 
-
 /// 如果在 mian 函数中初始化的数据, 在其他位置访问的需要初始化的数据, 应当认为一定被初始化而无需 unsafe 访问, 如 global()
 fn main() {
     let inst = Instant::now();

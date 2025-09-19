@@ -1,6 +1,6 @@
 use crate::pos::{SChunkPos, WChunkPos};
 use crate::server::chunk::SChunk;
-use crate::server::global::{global, MAX_THREAD_COUNT, MAX_SCHUNK_DECAY_RATE};
+use crate::server::global::{global, MAX_THREAD_COUNT, MAX_SCHUNK_DECAY_RATE, AsyncWait};
 use crate::server::ticker::ChunkServerEvent::{RemoveSCEvent, RequestSCEvent, TickEndEvent};
 use crate::server::ticker::ChunkServerState::{IsPending, IsTicked, IsTicking};
 use crate::server::ChunkServer;
@@ -39,7 +39,7 @@ pub struct Ticker {
 impl Ticker {
     pub fn run(mut self) {
         while self.scheduled_run {
-            global().runtime.block_on(self.interval.tick());
+            self.interval.tick().async_wait();
             self.tick_start_time = Instant::now();
             //
             start(&mut self);
@@ -68,7 +68,7 @@ impl Ticker {
         while self.thread_count != 0 {
             // 此处是目前唯一的可以实现 主线程 与 Chunk线程 并行计算的位置
             // 在没有更多的 ChunkServer 维持线程数量时, 可以开启一些独立任务填充
-            match global().runtime.block_on(global().events.wait_recv()) {
+            match global().events.wait_recv().async_wait() {
                 TickEndEvent(server) => self.handle_tick_end(server),
                 RequestSCEvent(responser) => self.handle_request_sc(responser),
                 RemoveSCEvent(pos) => self.handle_remove_schunk(pos),
@@ -243,7 +243,7 @@ pub struct SChunkResponseCell {
 }
 pub struct Responser {
     pub req_cell: SChunkRequestCell,
-    pub tx: OnetimeSender<SChunkResponseCell>,
+    pub tx: OnetimeSender<ChunkServerState>,
 }
 
 pub enum ChunkServerEvent {
@@ -271,10 +271,7 @@ impl ServerBuilder for u64 {
 impl Responser {
     pub fn response(self, server: ChunkServerState) {
         mem::forget(self.req_cell.requester);
-        self.tx.send(SChunkResponseCell {
-            // requester: self.req_cell.requester,
-            response: server
-        });
+        self.tx.send(server);
     }
 }
 impl ChunkServerState {
