@@ -1,0 +1,17 @@
+[package]
+name = "messfunc-rust-lib"
+version = "0.1.0"
+edition = "2021"
+authors = ["MessFunc"]
+description = "一个高性能的Rust工具库，专注于内存管理、并发编程和实用工具函数"
+license = "MIT"
+repository = "https://github.com/messfunc/messfunc-rust-lib"
+keywords = ["memory", "concurrency", "utils", "performance"]
+categories = ["concurrency", "memory-management", "development-tools"]
+
+[dependencies]
+tokio = { version = "1.46.1", features = [ "full" ] }
+futures = "0.3"
+borrow = "1.3.0"
+lazy_static = "1.5.0"
+qcell = "0.5.4"

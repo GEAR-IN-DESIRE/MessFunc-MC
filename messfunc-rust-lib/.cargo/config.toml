@@ -1,0 +1,6 @@
+[build]
+rustflags = [
+    "-Z", "polonius",
+#    "-Z", "borrowck=mir",
+#    "-Z", "two-phase-borrows"
+]

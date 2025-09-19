@@ -1,0 +1,12 @@
+[package]
+name = "messfunc-mc-server"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tokio = { version = "1.47.1"}
+uuid = { version = "1.17.0", features = ["v4"] }
+sysinfo = "0.37.0"
+messfunc-rust-lib = { path = "../MessFunc-Rust-Lib"}
+twox-hash = "2.1.1"
+dashmap = "7.0.0-rc2"
