@@ -1,7 +1,7 @@
 use crate::entity::player::Player;
 use crate::pos::{SChunkPos, WChunkPos};
 use crate::server::chunk::SChunk;
-use crate::server::global::{global, AsyncWait};
+use crate::server::global::{global, AsyncSpawn, AsyncWait};
 use crate::server::ticker::ChunkServerEvent::{RemoveSCEvent, TickEndEvent};
 use crate::server::ticker::{ChunkServerEvent, ChunkServerState, Responser, SChunkRequestCell, Ticker};
 use crate::tick_chunk;
@@ -26,7 +26,7 @@ pub struct ChunkServer {
 impl ChunkServer {
     pub fn tick(mut self: Box<Self>)  {
         tick_chunk(&mut self);
-        global().runtime.spawn(global().events.send(TickEndEvent(self)));
+        global().events.send(TickEndEvent(self)).async_spawn();
     }
 
     fn request_schunk(&mut self, pos: SChunkPos) -> &mut SChunk {
@@ -43,7 +43,7 @@ impl ChunkServer {
                     req_cell,
                     tx,
                 };
-                global().runtime.spawn(global().events.send(ChunkServerEvent::RequestSCEvent(responser)));
+                global().events.send(ChunkServerEvent::RequestSCEvent(responser)).async_spawn();
                 let borrow = rx.wait_recv().async_wait();
                 let index = self.borrows.len();
                 self.borrows.push(borrow);
@@ -63,7 +63,7 @@ impl ChunkServer {
         let wchunk = sc.remove_wchunk(pos);
         if sc.wchunk_count == 0 {
             self.sc_map.remove(&sc_pos);
-            global().runtime.spawn(global().events.send(RemoveSCEvent(sc_pos)));
+            global().events.send(RemoveSCEvent(sc_pos)).async_spawn();
         }
         wchunk
     }

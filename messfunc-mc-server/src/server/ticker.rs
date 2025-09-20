@@ -234,12 +234,8 @@ trait ServerBuilder {
 }
 pub struct SChunkRequestCell {
     /// 此处的 server box 是一个 unsafe 副本, 原始 box 此时是被挂起无法使用的
-    pub requester: Box<ChunkServer>,
+    pub requester: Box<ChunkServer>
     pub sc_pos: SChunkPos,
-}
-pub struct SChunkResponseCell {
-    // pub requester: Box<ChunkServer>,
-    pub response: ChunkServerState,
 }
 pub struct Responser {
     pub req_cell: SChunkRequestCell,

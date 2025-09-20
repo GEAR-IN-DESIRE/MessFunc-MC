@@ -269,6 +269,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9229cfe53dfd69f0609a49f65461bd93001ea1ef889cd5529dd176593f5338a1"
 
 [[package]]
+name = "indexmap"
+version = "2.11.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4b0f83760fb341a774ed326568e19f5a863af4a952def8c39f9ab92fd95b88e5"
+dependencies = [
+ "equivalent",
+ "hashbrown",
+]
+
+[[package]]
+name = "inline"
+version = "0.0.0-r0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aa5fa92daf061632dd590f4ab8492e80e8c2eb72cf1e30c3e2c04ab53036f135"
+
+[[package]]
 name = "io-uring"
 version = "0.7.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -359,6 +375,8 @@ name = "messfunc-mc-server"
 version = "0.1.0"
 dependencies = [
  "dashmap",
+ "indexmap",
+ "inline",
  "messfunc-rust-lib",
  "sysinfo",
  "tokio",

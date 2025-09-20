@@ -10,3 +10,5 @@ sysinfo = "0.37.0"
 messfunc-rust-lib = { path = "../MessFunc-Rust-Lib"}
 twox-hash = "2.1.1"
 dashmap = "7.0.0-rc2"
+indexmap = "2.0"
+inline = "0.0.0-r0"

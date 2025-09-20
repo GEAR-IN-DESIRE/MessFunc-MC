@@ -9,11 +9,11 @@ use std::hash::BuildHasherDefault;
 use std::mem::MaybeUninit;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener};
 use std::ptr::addr_of;
-use std::task::Poll::Pending;
 use std::time::Duration;
 use sysinfo::System;
 use tokio::runtime::Runtime;
 use tokio::sync::RwLock;
+use tokio::task::JoinHandle;
 use twox_hash::XxHash64;
 use uuid::Uuid;
 
@@ -75,6 +75,9 @@ pub const fn global() -> &'static Global {
 pub trait AsyncWait<T> {
     fn async_wait(self) -> T;
 }
+pub trait AsyncSpawn<T> {
+    fn async_spawn(self) -> JoinHandle<T>;
+}
 impl<T, F: Future<Output = T>> AsyncWait<T> for F {
     fn async_wait(self) -> T {
         // TODO 可能最后会这么做
@@ -83,5 +86,10 @@ impl<T, F: Future<Output = T>> AsyncWait<T> for F {
         // }
         // // 返回
         global().runtime.block_on(self)
+    }
+}
+impl<T: Send + 'static, F: Future<Output = T> + Send + 'static> AsyncSpawn<T> for F {
+    fn async_spawn(self) -> JoinHandle<T> {
+        global().runtime.spawn(self)
     }
 }
